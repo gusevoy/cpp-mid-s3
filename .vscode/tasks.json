@@ -17,6 +17,20 @@
             "group": {
                 "kind": "build"
             }
+        },
+        {
+            "label": "run-tests",
+            "type": "shell",
+            "command": "./BookDB_tests",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
         }
     ]
 }
