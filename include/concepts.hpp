@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <iterator>
+#include <utility>
 
 #include "book.hpp"
 
@@ -33,6 +34,8 @@ concept BookContainerLike = requires(Container cont, const Container ccont) {
     { cont.empty() } -> std::convertible_to<bool>;
     { cont.size() } -> std::convertible_to<typename Container::size_type>;
     { cont.clear() };
+    { cont.push_back(std::declval<typename Container::value_type>()) };
+    { cont.emplace_back() } -> std::convertible_to<typename Container::value_type>;
 };
 
 template <typename T>

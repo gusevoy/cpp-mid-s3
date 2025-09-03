@@ -81,7 +81,7 @@ struct formatter<bookdb::Book, char> {
     bool short_format = false;
 
     template <typename FormatContext>
-    auto format(const bookdb::Book book, FormatContext& fc) const {
+    auto format(const bookdb::Book& book, FormatContext& fc) const {
         if (short_format) {
             return format_to(fc.out(), "[{}, {}]", book.author, book.year);
         } else {

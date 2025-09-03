@@ -17,8 +17,8 @@
 namespace bookdb {
 
 template <BookContainerLike T, typename Comparator = TransparentStringLess>
-auto buildAuthorHistogramFlat(const BookDatabase<T>& containter, Comparator comp = {}) {
-    std::flat_map<std::string_view, size_t> histogram;
+[[nodiscard]] auto buildAuthorHistogramFlat(const BookDatabase<T>& containter, Comparator comp = {}) {
+    std::flat_map<std::string_view, size_t, Comparator> histogram{comp};
     std::for_each(containter.cbegin(), containter.cend(), [&histogram](const auto& book) {
         // похоже в GCC15 какой-то баг, который не дает сделать просто ++histogram[book.author]
         // поэтому везде ниже вот такие выкрутасы с try_emplace
@@ -28,7 +28,7 @@ auto buildAuthorHistogramFlat(const BookDatabase<T>& containter, Comparator comp
 }
 
 template <BookIterator It, BookSentinel<It> Sentinel>
-auto calculateGenreRatings(It begin, Sentinel end) {
+[[nodiscard]] auto calculateGenreRatings(It begin, Sentinel end) {
     std::flat_map<Genre, std::pair<double, std::size_t>, std::less<void>> statistic;
     std::for_each(begin, end, [&statistic](const auto& book) {
         auto [it, _] = statistic.try_emplace(book.genre, 0.0, 0);
@@ -47,17 +47,17 @@ auto calculateGenreRatings(It begin, Sentinel end) {
 }
 
 template <BookContainerLike T>
-auto calculateAverageRating(const BookDatabase<T>& containter) {
+[[nodiscard]] auto calculateAverageRating(const BookDatabase<T>& containter) {
     if (containter.empty()) {
         return 0.0;
     }
-    return std::accumulate(containter.cbegin(), containter.cend(), 0.0,
-                           [](auto sum, const auto& book) { return sum + book.rating; }) /
+    return std::transform_reduce(containter.cbegin(), containter.cend(), 0.0, std::plus<>(),
+                                 [](const auto& book) { return book.rating; }) /
            containter.size();
 }
 
 template <BookContainerLike T>
-auto sampleRandomBooks(const BookDatabase<T>& containter, size_t count) {
+[[nodiscard]] auto sampleRandomBooks(const BookDatabase<T>& containter, size_t count) {
     std::vector<std::reference_wrapper<const Book>> res;
     res.reserve(count);
     std::sample(containter.cbegin(), containter.cend(), std::back_inserter(res), count,
@@ -66,7 +66,7 @@ auto sampleRandomBooks(const BookDatabase<T>& containter, size_t count) {
 }
 
 template <BookContainerLike T, BookComparator Comparator>
-auto getTopNBy(BookDatabase<T>& containter, size_t n, Comparator comparator) {
+[[nodiscard]] auto getTopNBy(BookDatabase<T>& containter, size_t n, Comparator comparator) {
     n = std::min(n, containter.size());
     auto mid = std::next(containter.begin(), n);
     std::partial_sort(containter.begin(), mid, containter.end(), comparator);

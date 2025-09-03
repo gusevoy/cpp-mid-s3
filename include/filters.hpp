@@ -33,8 +33,8 @@ constexpr auto all_of(Predicate&&... predicates) {
 }
 
 template <BookIterator It, BookSentinel<It> Sentinel, BookPredicate Predicate>
-constexpr std::vector<std::reference_wrapper<const Book>> filterBooks(const It begin, const Sentinel end,
-                                                                      Predicate predicate) {
+[[nodiscard]] constexpr std::vector<std::reference_wrapper<const Book>> filterBooks(const It begin, const Sentinel end,
+                                                                                    Predicate predicate) {
     std::vector<std::reference_wrapper<const Book>> result;
     std::copy_if(begin, end, std::back_inserter(result), [&predicate](const Book& book) { return predicate(book); });
     return result;
